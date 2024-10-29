@@ -73,14 +73,13 @@ def create_meal(meal: str, cuisine: str, price: float, difficulty: str) -> None:
 
 def delete_meal(meal_id: int) -> None:
     """
-    Deletes a meal from the database.
+    Soft deletes a meal from the database.
 
     Args:
-        meal_id (int): id of the meal to delete.
+        meal_id (int): ID of the meal to delete.
 
     Raises:
-        ValueError: If meal with the id is already deleted.
-        TypeError: If meal with the id is not found.
+        ValueError: If meal with the ID is already deleted or not found.
         sqlite3.Error: If there is a database error.
     """
     
@@ -92,7 +91,7 @@ def delete_meal(meal_id: int) -> None:
                 deleted = cursor.fetchone()[0]
                 if deleted:
                     logger.info("Meal with ID %s has already been deleted", meal_id)
-                    raise ValueError(f"Meal with ID {meal_id} has been deleted")
+                    raise ValueError(f"Meal with ID {meal_id} has already been deleted")
             except TypeError:
                 logger.info("Meal with ID %s not found", meal_id)
                 raise ValueError(f"Meal with ID {meal_id} not found")

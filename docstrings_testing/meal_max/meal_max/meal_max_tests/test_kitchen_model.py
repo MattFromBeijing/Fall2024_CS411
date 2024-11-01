@@ -158,7 +158,10 @@ def test_delete_meal_already_deleted(mock_cursor):
 ######################################################
 
 def test_get_leaderboard(mock_cursor):
-    """Test retrieving the current leaderboard of meals that are not marked as deleted."""
+    """
+        Test retrieving the current leaderboard of meals that are not marked as deleted and ordered
+        by wins (default).
+    """
 
     # Simulate that there are multiple songs in the database
     mock_cursor.fetchall.return_value = [
@@ -189,36 +192,14 @@ def test_get_leaderboard(mock_cursor):
 
     assert actual_query == expected_query, "The SQL query did not match the expected structure."
 
-def test_get_all_songs_empty_catalog(mock_cursor, caplog):
-    """Test that retrieving all songs returns an empty list when the catalog is empty and logs a warning."""
-
-    # Simulate that the catalog is empty (no songs)
-    mock_cursor.fetchall.return_value = []
-
-    # Call the get_all_songs function
-    result = get_all_songs()
-
-    # Ensure the result is an empty list
-    assert result == [], f"Expected empty list, but got {result}"
-
-    # Ensure that a warning was logged
-    assert "The song catalog is empty." in caplog.text, "Expected warning about empty catalog not found in logs."
-
-    # Ensure the SQL query was executed correctly
-    expected_query = normalize_whitespace("SELECT id, artist, title, year, genre, duration, play_count FROM songs WHERE deleted = FALSE")
-    actual_query = normalize_whitespace(mock_cursor.execute.call_args[0][0])
-
-    # Assert that the SQL query was correct
-    assert actual_query == expected_query, "The SQL query did not match the expected structure."
-
-def test_get_all_songs_ordered_by_play_count(mock_cursor):
-    """Test retrieving all songs ordered by play count."""
+def test_get_leaderboard_ordered_by_wins_pct(mock_cursor):
+    """Test retrieving the leaderboard ordered by wins_pct."""
 
     # Simulate that there are multiple songs in the database
     mock_cursor.fetchall.return_value = [
-        (2, "Artist B", "Song B", 2021, "Pop", 180, 20),
-        (1, "Artist A", "Song A", 2020, "Rock", 210, 10),
-        (3, "Artist C", "Song C", 2022, "Jazz", 200, 5)
+        (2, "Meal B", "Cuisine B", 12, "LOW", 3, 1, False),
+        (1, "Meal A", "Cuisine A", 10, "MED", 2, 2, False),
+        (3, "Meal C", "Cuisine C", 9, "HIGH", 1, 0, False)
     ]
 
     # Call the get_all_songs function with sort_by_play_count = True

@@ -1,0 +1,8 @@
+# create a new virtualenv
+python3 -m <path/to/venv>
+# activate venv
+source <path/to/venv>/bin/activate
+# install requirements
+pip install -r requirements.lock
+# go back to system python
+deactivate

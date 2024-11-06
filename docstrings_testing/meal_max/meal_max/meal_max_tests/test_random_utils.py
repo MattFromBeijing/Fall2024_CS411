@@ -24,7 +24,7 @@ def test_get_random(mock_random_org):
     assert result == RANDOM_NUMBER, f"Expected random number {RANDOM_NUMBER}, but got {result}"
 
     # Ensure that the correct URL was called
-    requests.get.assert_called_once_with("https://www.random.org/integers/?num=1&min=1&max=100&col=1&base=10&format=plain&rnd=new", timeout=5)
+    requests.get.assert_called_once_with("https://www.random.org/decimal-fractions/?num=1&dec=2&col=1&format=plain&rnd=new", timeout=5)
 
 def test_get_random_request_failure(mocker):
     """Simulate  a request failure."""

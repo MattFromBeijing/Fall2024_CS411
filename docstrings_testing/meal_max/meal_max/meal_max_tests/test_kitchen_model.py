@@ -165,8 +165,8 @@ def test_get_leaderboard(mock_cursor):
 
     # Simulate that there are multiple songs in the database
     mock_cursor.fetchall.return_value = [
-        (2, "Meal B", "Cuisine B", 12, "LOW", 3, 1, (1 * 1.0 / 3), False),
         (1, "Meal A", "Cuisine A", 10, "MED", 2, 2, (2 * 1.0 / 2), False),
+        (2, "Meal B", "Cuisine B", 12, "LOW", 3, 1, (1 * 1.0 / 3), False),
         (3, "Meal C", "Cuisine C", 9, "HIGH", 1, 0, (0 * 1.0 / 1), False)
     ]
 
@@ -196,8 +196,8 @@ def test_get_leaderboard_ordered_by_win_pct(mock_cursor):
 
     # Simulate that there are multiple songs in the database
     mock_cursor.fetchall.return_value = [
-        (2, "Meal B", "Cuisine B", 12, "LOW", 3, 1, (1 * 1.0 / 3), False),
         (1, "Meal A", "Cuisine A", 10, "MED", 2, 2, (2 * 1.0 / 2), False),
+        (2, "Meal B", "Cuisine B", 12, "LOW", 3, 1, (1 * 1.0 / 3), False),
         (3, "Meal C", "Cuisine C", 9, "HIGH", 1, 0, (0 * 1.0 / 1), False)
     ]
 
@@ -206,7 +206,7 @@ def test_get_leaderboard_ordered_by_win_pct(mock_cursor):
 
     # Ensure the results are sorted by win percentage
     expected_result = [
-        {"id": 1, "meal": "Meal A", "cuisine": "Ciusine A", "price": 10, "difficulty": "MED", "battles": 2, "wins": 2, "win_pct": 100.0},
+        {"id": 1, "meal": "Meal A", "cuisine": "Cuisine A", "price": 10, "difficulty": "MED", "battles": 2, "wins": 2, "win_pct": 100.0},
         {"id": 2, "meal": "Meal B", "cuisine": "Cuisine B", "price": 12, "difficulty": "LOW", "battles": 3, "wins": 1, "win_pct": 33.3},
         {"id": 3, "meal": "Meal C", "cuisine": "Cuisine C", "price": 9, "difficulty": "HIGH", "battles": 1, "wins": 0, "win_pct": 0.0}
     ]

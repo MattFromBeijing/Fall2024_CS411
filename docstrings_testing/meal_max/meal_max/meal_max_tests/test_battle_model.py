@@ -1,7 +1,7 @@
 import pytest
 
 from meal_max.models.battle_model import BattleModel
-from meal_max.models.kitchen_model import Meal
+from meal_max.models.kitchen_model import Meal, update_meal_stats
 
 @pytest.fixture
 def battle_model():
@@ -23,31 +23,23 @@ def sample_meal3():
 def sample_meals(sample_meal1, sample_meal2):
     return [sample_meal1, sample_meal2]
 
-@pytest.fixture
-def mock_update_update_meal_stats(mocker):
-    return mocker.patch("meal_max.models.kitchen_model.update_meal_stats")
-
 ##################################################
 # Battle Test Case
 ##################################################
 
-def test_battle(battle_model, sample_meal1, sample_meal2, mock_update_meal_stats, mocker):
+def test_battle(battle_model, sample_meal1, sample_meal2, mocker):
     """Test the battle between two meals"""
 
     battle_model.prep_combatant(sample_meal1)
     battle_model.prep_combatant(sample_meal2)
 
     # Mock get_random to return a fixed value
-    mocker.patch('meal_max.utils.random_utils.get_random', return_value=0.3)
-
-    score1 = battle_model.get_battle_score(sample_meal1) # score1 should be 68.9b
-    score2 = battle_model.get_battle_score(sample_meal2) # score2 should be 124.92
+    mocker.patch('meal_max.models.battle_model.get_random', return_value=0.3)
+    mock_update_meal_stats = mocker.patch('meal_max.models.battle_model.update_meal_stats')
 
     # Call battle
     winner_meal = battle_model.battle()
 
-    # Since delta = abs(68.93 - 124.92) / 100 = 0.5599
-    # Since delta (0.5599) is greater than random_number (0.3), winner should be combatant_1
     assert winner_meal == sample_meal1.meal, f"Expected winner to be {sample_meal1.meal}, but got {winner_meal}"
 
     # Check that update_meal_stats was called correctly
@@ -61,7 +53,6 @@ def test_battle(battle_model, sample_meal1, sample_meal2, mock_update_meal_stats
 def test_battle_low_combatants(battle_model, sample_meal1):
     """"""
     battle_model.prep_combatant(sample_meal1)
-    battle_model.battle()
     with pytest.raises(ValueError, match="Two combatants must be prepped for a battle."):
         battle_model.battle()
 
@@ -85,7 +76,7 @@ def test_get_battle_score(battle_model, sample_meal1):
     """"""
     battle_model.prep_combatant(sample_meal1)
 
-    score = get_battle_score(sample_meal1)
+    score = battle_model.get_battle_score(sample_meal1)
 
     assert score == 68.93, "Expected battle score of 68.93, but got {score}"
 
@@ -120,7 +111,6 @@ def test_prep_combatants_overload(battle_model, sample_meal1, sample_meal2, samp
     """"""
     battle_model.prep_combatant(sample_meal1)
     battle_model.prep_combatant(sample_meal2)
-    battle_model.prep_combatant(sample_meal3)
 
     with pytest.raises(ValueError, match="Combatant list is full, cannot add more combatants."):
         battle_model.prep_combatant(sample_meal3)

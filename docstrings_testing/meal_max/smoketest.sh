@@ -47,13 +47,13 @@ check_db() {
 
 ##########################################################
 #
-# Song Management
+# Meal Management
 #
 ##########################################################
 
-clear_catalog() {
+clear_meals() {
   echo "Clearing the meal list..."
-  curl -s -X DELETE "$BASE_URL/clear-catalog" | grep -q '"status": "success"'
+  curl -s -X DELETE "$BASE_URL/clear-meals" | grep -q '"status": "success"'
 }
 
 create_meal() {
@@ -74,15 +74,65 @@ create_meal() {
   fi
 }
 
-delete_song_by_id() {
-  song_id=$1
+delete_meal_by_id() {
+  meal_id=$1
 
-  echo "Deleting song by ID ($song_id)..."
-  response=$(curl -s -X DELETE "$BASE_URL/delete-song/$song_id")
+  echo "Deleting meal by ID ($meal_id)..."
+  response=$(curl -s -X DELETE "$BASE_URL/delete-meal/$meal_id")
   if echo "$response" | grep -q '"status": "success"'; then
-    echo "Song deleted successfully by ID ($song_id)."
+    echo "Meal deleted successfully by ID ($meal_id)."
   else
-    echo "Failed to delete song by ID ($song_id)."
+    echo "Failed to delete meal by ID ($meal_id)."
     exit 1
   fi
 }
+
+get_leaderboard() {
+  echo "Getting all meals in the leaderboard..."
+  response=$(curl -s -X GET "$BASE_URL/leaderboard")
+  if echo "$response" | grep -q '"status": "success"'; then
+    echo "Leaderboard retrieved successfully."
+    if [ "$ECHO_JSON" = true ]; then
+      echo "Meals JSON:"
+      echo "$response" | jq .
+    fi
+  else
+    echo "Failed to get leaderboard."
+    exit 1
+  fi
+}
+
+get_meal_by_id() {
+  meal_id=$1
+
+  echo "Getting meal by ID ($meal_id)..."
+  response=$(curl -s -X GET "$BASE_URL/get-meal-by-id/$meal_id")
+  if echo "$response" | grep -q '"status": "success"'; then
+    echo "Meal retrieved successfully by ID ($meal_id)."
+    if [ "$ECHO_JSON" = true ]; then
+      echo "Meal JSON (ID $meal_id):"
+      echo "$response" | jq .
+    fi
+  else
+    echo "Failed to get meal by ID ($meal_id)."
+    exit 1
+  fi
+}
+
+get_meal_by_name() {
+  meal=$1
+
+  echo "Getting meal by name ($meal)..."
+  response=$(curl -s -X GET "$BASE_URL/get-meal-by-name?meal=$(echo $meal | sed 's/ /%20/g')")
+  if echo "$response" | grep -q '"status": "success"'; then
+    echo "Meal retrieved successfully by meal name."
+    if [ "$ECHO_JSON" = true ]; then
+      echo "Meal JSON (by name):"
+      echo "$response" | jq .
+    fi
+  else
+    echo "Failed to get meal by name."
+    exit 1
+  fi
+}
+

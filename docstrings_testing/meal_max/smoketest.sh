@@ -22,7 +22,7 @@ done
 ###############################################
 
 # Function to check the health of the service
-check_health() {
+check_health() { # healthcheck()
   echo "Checking health status..."
   curl -s -X GET "$BASE_URL/health" | grep -q '"status": "healthy"'
   if [ $? -eq 0 ]; then
@@ -34,7 +34,7 @@ check_health() {
 }
 
 # Function to check the database connection
-check_db() {
+check_db() { # db_check()
   echo "Checking database connection..."
   curl -s -X GET "$BASE_URL/db-check" | grep -q '"database_status": "healthy"'
   if [ $? -eq 0 ]; then
@@ -51,12 +51,7 @@ check_db() {
 #
 ##########################################################
 
-clear_meals() {
-  echo "Clearing the meal list..."
-  curl -s -X DELETE "$BASE_URL/clear-meals" | grep -q '"status": "success"'
-}
-
-create_meal() {
+create_meal() { # add_meal()
   meal=$1
   cuisine=$2
   price=$3
@@ -74,7 +69,19 @@ create_meal() {
   fi
 }
 
-delete_meal_by_id() {
+clear_meals() { # clear_catalog()
+  echo "Clearing meals..."
+  response=$(curl -s -X DELETE "$BASE_URL/clear-meals")
+
+  if echo "$response" | grep -q '"status": "success"'; then
+    echo "Meals cleared successfully."
+  else
+    echo "Failed to clear meals."
+    exit 1
+  fi
+}
+
+delete_meal_by_id() { # delete_meal(meal_id: int)
   meal_id=$1
 
   echo "Deleting meal by ID ($meal_id)..."
@@ -87,22 +94,7 @@ delete_meal_by_id() {
   fi
 }
 
-get_leaderboard() {
-  echo "Getting all meals in the leaderboard..."
-  response=$(curl -s -X GET "$BASE_URL/leaderboard")
-  if echo "$response" | grep -q '"status": "success"'; then
-    echo "Leaderboard retrieved successfully."
-    if [ "$ECHO_JSON" = true ]; then
-      echo "Meals JSON:"
-      echo "$response" | jq .
-    fi
-  else
-    echo "Failed to get leaderboard."
-    exit 1
-  fi
-}
-
-get_meal_by_id() {
+get_meal_by_id() { # get_meal_by_id(meal_id: int)
   meal_id=$1
 
   echo "Getting meal by ID ($meal_id)..."
@@ -119,11 +111,11 @@ get_meal_by_id() {
   fi
 }
 
-get_meal_by_name() {
+get_meal_by_name() { # get_meal_by_name(meal_name: str)
   meal=$1
 
   echo "Getting meal by name ($meal)..."
-  response=$(curl -s -X GET "$BASE_URL/get-meal-by-name?meal=$(echo $meal | sed 's/ /%20/g')")
+  response=$(curl -s -X GET "$BASE_URL/get-meal-by-name/$(echo "$meal" | sed 's/ /%20/g')")
   if echo "$response" | grep -q '"status": "success"'; then
     echo "Meal retrieved successfully by meal name."
     if [ "$ECHO_JSON" = true ]; then
@@ -142,9 +134,9 @@ get_meal_by_name() {
 #
 ############################################################
 
-battle() {
+battle() { # battle()
   echo "Begin battle..."
-  response=$(curl -s -X POST "$BASE_URL/battle")
+  response=$(curl -s -X GET "$BASE_URL/battle")
 
   if echo "$response" | grep -q '"status": "success"'; then
     echo "Battle has begun."
@@ -158,13 +150,7 @@ battle() {
   fi
 }
 
-############################################################
-#
-# Combatant Management
-#
-############################################################
-
-clear_combatants() {
+clear_combatants() { # clear_combatants()
   echo "Clearing combatants..."
   response=$(curl -s -X POST "$BASE_URL/clear-combatants")
 
@@ -176,7 +162,7 @@ clear_combatants() {
   fi
 }
 
-get_combatants() {
+get_combatants() { # get_combatants()
   echo "Getting combatant..."
   response=$(curl -s -X GET "$BASE_URL/get-combatants")
 
@@ -192,11 +178,13 @@ get_combatants() {
   fi
 }
 
-prep_combatant() {
+prep_combatant() { # prep_combatant()
   meal=$1
 
   echo "Preparing combatant: $meal..."
-  response=$(curl -s -X POST "BASE_URL/prep-combatant")
+  response=$(curl -s -X POST "$BASE_URL/prep-combatant" \
+    -H "Content-Type: application/json" \
+    -d "{\"meal\": \"$meal\"}")
 
   if echo "$response" | grep -q '"status": "success"'; then
     echo "Combatant $meal prepared successfully."
@@ -206,4 +194,64 @@ prep_combatant() {
   fi
 }
 
+############################################################
+#
+# Leaderboard
+#
+############################################################
 
+get_leaderboard() {
+  echo "Getting all meals in the leaderboard..."
+  response=$(curl -s -X GET "$BASE_URL/leaderboard")
+  if echo "$response" | grep -q '"status": "success"'; then
+    echo "Leaderboard retrieved successfully."
+    if [ "$ECHO_JSON" = true ]; then
+      echo "Meals JSON:"
+      echo "$response" | jq .
+    fi
+  else
+    echo "Failed to get leaderboard."
+    exit 1
+  fi
+}
+
+############################################################
+#
+# Function Calls
+#
+############################################################
+
+# Health Checks
+check_health
+check_db
+
+# Meal Management
+create_meal "Meal 1" "Chinese" 9.99 "HIGH"
+create_meal "Meal 2" "English" 12.99 "MED"
+create_meal "Meal 3" "French" 25.99 "HIGH"
+create_meal "Meal 4" "Indian" 7.99 "HIGH"
+create_meal "Meal 5" "American" 5.99 "LOW"
+
+# Test get and delete
+get_meal_by_id 1
+get_meal_by_name "Meal 1"
+delete_meal_by_id 1
+
+# Battle Management
+prep_combatant "Meal 2"
+prep_combatant "Meal 3"
+
+get_combatants
+
+battle
+
+prep_combatant "Meal 4"
+
+battle
+
+# Leaderboard
+get_leaderboard
+
+# Clear everything
+clear_combatants
+clear_meals

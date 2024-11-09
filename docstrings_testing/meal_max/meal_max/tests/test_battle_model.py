@@ -51,7 +51,7 @@ def test_battle(battle_model, sample_meal1, sample_meal2, mocker):
     assert battle_model.combatants[0] == sample_meal1, "Expected winner to remain in combatants"
 
 def test_battle_low_combatants(battle_model, sample_meal1):
-    """"""
+    """Testing a battle with less than 2 combatants"""
     battle_model.prep_combatant(sample_meal1)
     with pytest.raises(ValueError, match="Two combatants must be prepped for a battle."):
         battle_model.battle()
@@ -61,7 +61,7 @@ def test_battle_low_combatants(battle_model, sample_meal1):
 ##################################################
 
 def test_clear_combatants(battle_model, sample_meal1):
-    """"""
+    """Testing clearing combatants"""
     battle_model.prep_combatant(sample_meal1)
 
     battle_model.clear_combatants()
@@ -73,7 +73,7 @@ def test_clear_combatants(battle_model, sample_meal1):
 ##################################################
 
 def test_get_battle_score(battle_model, sample_meal1):
-    """"""
+    """Testing retrieving the battle score of a meal"""
     battle_model.prep_combatant(sample_meal1)
 
     score = battle_model.get_battle_score(sample_meal1)
@@ -85,7 +85,7 @@ def test_get_battle_score(battle_model, sample_meal1):
 ##################################################
 
 def test_get_combatants(battle_model, sample_meal1):
-    """"""
+    """Testing retrieving a meal"""
     battle_model.prep_combatant(sample_meal1)
 
     retrieved_list = battle_model.get_combatants()
@@ -101,14 +101,14 @@ def test_get_combatants(battle_model, sample_meal1):
 ##################################################
 
 def test_prep_combatants(battle_model, sample_meal1):
-    """"""
+    """Testing preparing a meal for battle"""
     battle_model.prep_combatant(sample_meal1)
 
     assert len(battle_model.combatants) == 1, "There should be one combatant in combatants"
     assert battle_model.combatants[0].meal == "Meal 1", "Meal 1 should have been added to combatants, but got {battle_model.combatants[0].meal} instead"
 
 def test_prep_combatants_overload(battle_model, sample_meal1, sample_meal2, sample_meal3):
-    """"""
+    """Testing preparing more than 2 meals for battle"""
     battle_model.prep_combatant(sample_meal1)
     battle_model.prep_combatant(sample_meal2)
 

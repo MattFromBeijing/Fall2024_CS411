@@ -10,6 +10,9 @@ COPY . /app
 # Copy the env file to the container
 COPY .env /app/.env
 
+# Copy entrypoint.sh into container
+COPY entrypoint.sh /app/entrypoint.sh
+
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 

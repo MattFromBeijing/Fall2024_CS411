@@ -146,7 +146,7 @@ def delete_meal(meal_id: int) -> Response:
         app.logger.info(f"Deleting meal by ID: {meal_id}")
 
         kitchen_model.delete_meal(meal_id)
-        return make_response(jsonify({'status': 'sucess'}), 200)
+        return make_response(jsonify({'status': 'success'}), 200)
     except Exception as e:
         app.logger.error(f"Error deleting meal: {e}")
         return make_response(jsonify({'error': str(e)}), 500)

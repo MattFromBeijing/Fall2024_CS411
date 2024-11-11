@@ -72,7 +72,6 @@ create_meal() { # add_meal()
 clear_meals() { # clear_catalog()
   echo "Clearing meals..."
   response=$(curl -s -X DELETE "$BASE_URL/clear-meals")
-
   if echo "$response" | grep -q '"status": "success"'; then
     echo "Meals cleared successfully."
   else
